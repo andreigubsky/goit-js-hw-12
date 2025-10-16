@@ -1,40 +1,45 @@
-import { getImagesByQuery, data } from './js/pixabay-api';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
 
+import { getImagesByQuery } from './js/pixabay-api';
+import { createGallery, clearGallery, showLoader, hideLoader } from './js/render-functions';
 
-/*У файлі render - functions.js створи екземпляр 
-SimpleLightbox для роботи з модальним вікном 
-та зберігай функції для відображення елементів інтерфейсу:
-*/
+const query = document.querySelector('[name="search-text"]');
+const button = document.querySelector('button');
 
-/*Ця функція повинна приймати масив images, 
-створювати HTML-розмітку для галереї, 
-додавати її в контейнер галереї та викликати 
-метод екземпляра SimpleLightbox refresh(). 
-Нічого не повертає.
-*/
-createGallery(images)
+const emptyResponse = "Sorry, there are no images matching your search query. Please try again!";
+const emptyQuery = "Please enter your search query image";
 
-/*. Ця функція нічого не приймає та повинна 
-очищати вміст контейнера галереї. 
-Нічого не повертає.*/
-clearGallery()
+function showErrorMessage(shownMessage) {
+  iziToast.show({
+    message: shownMessage,
+    messageColor: '#ffffff',
+    backgroundColor: '#fe5549',
+    progressBar: false,
+    position: 'center',
+  });
+}
 
-/*. Ця функція нічого не приймає, повинна 
-додавати клас для відображення лоадера. 
-Нічого не повертає.*/
-showLoader()
+button.addEventListener('click', event => {
+  event.preventDefault();
+  if (!query.value) {
+    showErrorMessage(emptyQuery);
+    return;
+  }
+  clearGallery();
+  showLoader();
+  getImagesByQuery(query.value)
+    .then(result => {
+      console.log(result)
+      if (!result.hits || result.hits.length === 0) {
+        showErrorMessage(emptyResponse)
+      } else {
+        hideLoader();
+        createGallery(result.hits);
+        query.value = "";
+      }
+    })
 
-/*. Ця функція нічого не приймає, повинна 
-прибирати клас для відображення лоадера. 
- не повертає.*/
-hideLoader()
+    .catch(error => console.log(error))
 
-/*. Ця функція нічого не приймає, повинна 
-додавати клас для відображення кнопки Load more. 
-Нічого не повертає.*/
-showLoadMoreButton()
-
-/*. Ця функція нічого не приймає, повинна 
-прибирати клас для відображення кнопки Load more. 
-Нічого не повертає.*/
-hideLoadMoreButton()
+})

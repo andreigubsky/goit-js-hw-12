@@ -1,0 +1,31 @@
+.form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 10px;
+    margin: 10px auto;
+    width: 260px;
+    padding: 10px 20px;
+    border: 1px solid grey;
+    border-radius: 20px;
+}
+
+input,
+input:focus,
+input:active {
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 500;
+    width: 200px;
+    border: none;
+    outline: none;
+    background-color: inherit;
+}
+
+button {
+    padding: 6px;
+    fill: grey;
+    width: 40px;
+    border: none;
+    background-color: inherit;
+}
