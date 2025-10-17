@@ -50,10 +50,10 @@ button.addEventListener('click', async () => {
   }
 })
 
-loadMoreButton.addEventListener("submit", async () => {
+loadMoreButton.addEventListener("click", async () => {
   event.preventDefault();
   try {
-
+    console.log(1)
   } catch (error) {
     console.log(error);
   }
