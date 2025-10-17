@@ -16,24 +16,22 @@ const newGallery = new SimpleLightbox('.gallery li a', {
 
 export function createGallery(images) {
   const markup = images
-    .map(
-      el => {
+    .map(({ largeImageURL, webformatURL, tags, likes, views, comments, downloads }) => {
         return `<li class="gallery-item">
-                <a class="gallery-link" href="${el.largeImageURL}">
-                  <img class="gallery-image" src="${el.webformatURL}" width='100px' alt="${el.tags.split(",").slice(0, 3).join(",")}">
+                <a class="gallery-link" href="${largeImageURL}">
+                  <img class="gallery-image" src="${webformatURL}" width='100px' alt="${tags.split(",").slice(0, 3).join(",")}">
                   <ul class="image-params">
-                    <li><b>Likes</b>:<br> ${el.likes}</li>
-                    <li><b>Views</b>:<br> ${el.views}</li>
-                    <li><b>Comments</b>:<br> ${el.comments}</li>
-                    <li><b>Downloads</b>:<br> ${el.downloads}</li>
+                    <li><b>Likes</b>:<br> ${likes}</li>
+                    <li><b>Views</b>:<br> ${views}</li>
+                    <li><b>Comments</b>:<br> ${comments}</li>
+                    <li><b>Downloads</b>:<br> ${downloads}</li>
                   </ul>
                 </a>
               </li>`;
       })
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
-
-  newGallery.refresh();
+  //newGallery.refresh();
 }
 
 export function clearGallery() {

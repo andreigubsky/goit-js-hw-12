@@ -35,8 +35,6 @@ searchButton.addEventListener('click', async () => {
 
   try {
     const result = await getImagesByQuery(query.value, page);
-    console.log(result.totalHits);
-
 
     if (!result.hits || result.hits.length === 0) {
       showErrorMessage(emptyResponseMessage)
@@ -57,18 +55,20 @@ loadMoreButton.addEventListener("click", async () => {
 
   showLoader();
   try {
-    page += 1;
+    
     const result = await getImagesByQuery(query.value, page);
-    console.log(result.totalHits);
+    const totalPages = Math.ceil(result.totalHits/15);
 
-    const totalPages = Math.ceil(100 / result.totalHits);
-    //console.log(totalPages);
+
+    page += 1;
+
     hideLoader();
-    if (totalPages < result.totalHits) {
+    if (totalPages < page) {
       hideLoadMoreButton();
       return;
     }
     createGallery(result.hits);
+
     showLoadMoreButton();
 
   } catch (error) {
