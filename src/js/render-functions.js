@@ -4,14 +4,23 @@ import '/css/animations.css';
 
 const gallery = document.querySelector('ul.gallery');
 const loader = document.querySelector('.loader');
+const loadMoreButton = document.querySelector('.load-more-btn');
+const newGallery = new SimpleLightbox('.gallery li a', {
+  captions: true,
+  captionSelector: 'img',
+  captionType: 'attr',
+  captionsData: 'alt',
+  nav: true,
+  captionDelay: 250,
+});
 
-export function createGallery(data) {
-  const markup = data
+export function createGallery(images) {
+  const markup = images
     .map(
       el => {
         return `<li class="gallery-item">
                 <a class="gallery-link" href="${el.largeImageURL}">
-                  <img class="gallery-image" src="${el.webformatURL}" width='100px' alt="${el.tags.split(",").slice(0, 3)}">
+                  <img class="gallery-image" src="${el.webformatURL}" width='100px' alt="${el.tags.split(",").slice(0, 3).join(",")}">
                   <ul class="image-params">
                     <li><b>Likes</b>:<br> ${el.likes}</li>
                     <li><b>Views</b>:<br> ${el.views}</li>
@@ -22,16 +31,8 @@ export function createGallery(data) {
               </li>`;
       })
     .join('');
-  gallery.insertAdjacentHTML('afterbegin', markup);
+  gallery.insertAdjacentHTML('beforeend', markup);
 
-  const newGallery = new SimpleLightbox('.gallery li a', {
-    captions: true,
-    captionSelector: 'img',
-    captionType: 'attr',
-    captionsData: 'alt',
-    nav: true,
-    captionDelay: 250,
-  });
   newGallery.refresh();
 }
 
@@ -49,16 +50,10 @@ export function hideLoader() {
   gallery.classList.add('is-shown');
 }
 
-//Ця функція нічого не приймає, 
-// повинна додавати клас для відображення кнопки Load more. 
-// Нічого не повертає.
-export function showLoadMoreButton(){
-
+export function showLoadMoreButton() {
+  loadMoreButton.classList.add('is-shown');
 }
 
-//Ця функція нічого не приймає, 
-// повинна прибирати клас для відображення кнопки Load more. 
-// Нічого не повертає.
-export function hideLoadMoreButton(){
-
+export function hideLoadMoreButton() {
+  loadMoreButton.classList.remove('is-shown');
 }

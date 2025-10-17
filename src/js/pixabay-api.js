@@ -4,42 +4,39 @@
 // і повертати значення властивості data з отриманої відповіді.
 import axios from 'axios';
 
-
-let proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-proxyUrl = 'https://corsproxy.io/?';
+const proxyUrl = 'https://corsproxy.io/?url=';
 
 const url = 'https://pixabay.com/api';
 const KEY = '52704159-1137319808f91d343a45c96fe';
 const imageType = 'photo';
 const orientation = 'horizontal';
-const safesearch = true;
+const safeSearch = true;
+const perPage = 15;
+
 
 const options = {
   method: 'GET',
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
-    'X-Custom-Header': 'custom value',
-    'mode': 'no-cors',
   },
 };
 
-export function getImagesByQuery(query, page, per_page) {
-  
-  return axios(
-    proxyUrl+`${url}/?key=${KEY}&q=${query}&image_type=${imageType}&orientation=${orientation}&safesearch=${safesearch}&page=${page}&per_page=${per_page}`,
-      options
-    )
-    .then(response => {
-      if (!response.data) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
+export async function getImagesByQuery(query, page) {
+  try {
+    const requestURL = `${url}/?key=${KEY}&q=${query}&image_type=${imageType}&orientation=${orientation}&safesearch=${safeSearch}&page=${page}&per_page=${perPage}`;
+    const response = await axios(`${proxyUrl}${requestURL}`, options)
 
-      return response.data;
-    })
-    .catch(error => {
-      console.log('Помилка запиту:', error);
-    });
+    if (!response.data) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.data;
+
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+
 }
 
 

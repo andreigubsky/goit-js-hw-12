@@ -13,6 +13,32 @@
     display: flex;
 }
 
+.load-more-btn {
+    display: none;
+    /* display: flex; */
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    width: 200px;
+    height: 40px;
+    border: 1px solid grey;
+    border-radius: 5px;
+    background-color: #fcfcfc;
+    transition: background-color 0.3s ease;
+}
+
+.load-more-btn:hover,
+.load-more-btn:focus {
+    cursor: pointer;
+    background-color: #ececec;
+
+}
+
+.load-more-btn.is-shown {
+    display: flex;
+}
+
+
 .loader:hover,
 .loader:focus {
     transform: scale(1.1);
