@@ -4,7 +4,7 @@ import { getImagesByQuery } from './js/pixabay-api';
 import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions';
 
 const query = document.querySelector('[name="search-text"]');
-const button = document.querySelector('.search-image-btn');
+const searchButton = document.querySelector('.search-image-btn');
 const loadMoreButton = document.querySelector('.load-more-btn');
 
 const emptyResponseMessage = "Sorry, there are no images matching your search query. Please try again!";
@@ -22,7 +22,7 @@ function showErrorMessage(shownMessage) {
   });
 }
 
-button.addEventListener('click', async () => {
+searchButton.addEventListener('click', async () => {
   event.preventDefault();
   if (!query.value.trim() === "") {
     query.value = "";
@@ -36,6 +36,8 @@ button.addEventListener('click', async () => {
   try {
     const result = await getImagesByQuery(query.value, page);
     console.log(result.totalHits);
+
+
     if (!result.hits || result.hits.length === 0) {
       showErrorMessage(emptyResponseMessage)
       hideLoader();
@@ -43,7 +45,7 @@ button.addEventListener('click', async () => {
       hideLoader();
       createGallery(result.hits);
       showLoadMoreButton();
-      query.value = "";
+      //query.value = "";
     }
   } catch (error) {
     console.log(error);
@@ -52,8 +54,23 @@ button.addEventListener('click', async () => {
 
 loadMoreButton.addEventListener("click", async () => {
   event.preventDefault();
+
+  showLoader();
   try {
-    console.log(1)
+    page += 1;
+    const result = await getImagesByQuery(query.value, page);
+    console.log(result.totalHits);
+
+    const totalPages = Math.ceil(100 / result.totalHits);
+    //console.log(totalPages);
+    hideLoader();
+    if (totalPages < result.totalHits) {
+      hideLoadMoreButton();
+      return;
+    }
+    createGallery(result.hits);
+    showLoadMoreButton();
+
   } catch (error) {
     console.log(error);
   }
