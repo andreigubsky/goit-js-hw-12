@@ -31,7 +31,7 @@ export function createGallery(images) {
       })
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
-  //newGallery.refresh();
+  newGallery.refresh();
 }
 
 export function clearGallery() {
