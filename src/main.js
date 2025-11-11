@@ -1,5 +1,4 @@
 import iziToast from 'izitoast';
-import SimpleLightbox from 'simplelightbox';
 import 'izitoast/dist/css/iziToast.min.css';
 import { getImagesByQuery } from './js/pixabay-api';
 import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions';
@@ -11,15 +10,6 @@ const loadMoreButton = document.querySelector('.load-more-btn');
 const emptyResponseMessage = "Sorry, there are no images matching your search query. Please try again!";
 const emptyQueryMessage = "Please enter your search query image";
 const endSearchResults = "We're sorry, but you've reached the end of search results.";
-
-const newGallery = new SimpleLightbox('.gallery li a', {
-  captions: true,
-  captionSelector: 'img',
-  captionType: 'attr',
-  captionsData: 'alt',
-  nav: true,
-  captionDelay: 250,
-});
 
 let page = 1;
 let totalPages = 0;
@@ -36,7 +26,7 @@ function showErrorMessage(shownMessage) {
 
 searchButton.addEventListener('click', async (event) => {
   event.preventDefault();
-  
+
   if (query.value.trim() === "") {
     showErrorMessage(emptyQueryMessage);
     return;
@@ -47,25 +37,25 @@ searchButton.addEventListener('click', async (event) => {
   page = 1;
 
   try {
-    const result = await getImagesByQuery(query.value, page);
+    const queryState = query.value;
+    const result = await getImagesByQuery(queryState, page);
     hideLoader();
 
     if (!result.hits || result.hits.length === 0) {
       showErrorMessage(emptyResponseMessage)
       return;
-    } 
-      
-      createGallery(result.hits);
-      newGallery.refresh();
-      totalPages = Math.ceil(result.totalHits / 15);
-      
-      if (page < totalPages) {
-        showLoadMoreButton();
-      } else {
-        hideLoadMoreButton();
-      }
+    }
 
-    
+    createGallery(result.hits);
+    totalPages = Math.ceil(result.totalHits / 15);
+
+    if (page < totalPages) {
+      showLoadMoreButton();
+    } else {
+      hideLoadMoreButton();
+    }
+
+
   } catch (error) {
     console.log(error);
     hideLoader();
@@ -78,25 +68,23 @@ loadMoreButton.addEventListener("click", async (event) => {
 
   showLoader();
   try {
-   
-    const result = await getImagesByQuery(query.value, page);
+    const queryState = query.value;
+    const result = await getImagesByQuery(queryState, page);
 
     hideLoader();
+
+    const gallery = document.querySelector('.gallery');
+    const lastElement = gallery.lastElementChild;
+
     createGallery(result.hits);
-    newGallery.refresh();
 
-    const { height: cardHeight } =
-      document.querySelector('.gallery').firstElementChild.getBoundingClientRect();
-
-    window.scrollBy({
-      top: cardHeight * 2,
-      behavior: 'smooth',
-    });
+    if (lastElement) {
+      lastElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     if (page >= totalPages) {
       hideLoadMoreButton();
       showErrorMessage(endSearchResults);
-      window.scrollBy({ top: -100, behavior: 'smooth' })
       return;
     }
 
