@@ -3,16 +3,23 @@ import 'izitoast/dist/css/iziToast.min.css';
 import { getImagesByQuery } from './js/pixabay-api';
 import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions';
 
-const query = document.querySelector('[name="search-text"]');
-const searchButton = document.querySelector('.search-image-btn');
-const loadMoreButton = document.querySelector('.load-more-btn');
-
-const emptyResponseMessage = "Sorry, there are no images matching your search query. Please try again!";
-const emptyQueryMessage = "Please enter your search query image";
-const endSearchResults = "We're sorry, but you've reached the end of search results.";
-
 let page = 1;
 let totalPages = 0;
+
+const refs = {
+  query: document.querySelector('.js-input-field'),
+  form: document.querySelector('.js-form'),
+  loadMoreButton: document.querySelector('.js-load-more-btn'),
+  gallery: document.querySelector('.js-gallery'),
+}
+
+const messages = {
+  emptyResponseMessage: "Sorry, there are no images matching your search query. Please try again!",
+  emptyQueryMessage: "Please enter your search query image",
+  endSearchResults: "We're sorry, but you've reached the end of search results.",
+}
+
+let queryState = '';
 
 function showErrorMessage(shownMessage) {
   iziToast.show({
@@ -24,11 +31,11 @@ function showErrorMessage(shownMessage) {
   });
 }
 
-searchButton.addEventListener('click', async (event) => {
+refs.form.addEventListener('submit', async (event) => {
   event.preventDefault();
 
-  if (query.value.trim() === "") {
-    showErrorMessage(emptyQueryMessage);
+  if (refs.query.value.trim() === '') {
+    showErrorMessage(messages.emptyQueryMessage);
     return;
   }
   clearGallery();
@@ -37,17 +44,17 @@ searchButton.addEventListener('click', async (event) => {
   page = 1;
 
   try {
-    const queryState = query.value;
+    queryState = refs.query.value;
     const result = await getImagesByQuery(queryState, page);
     hideLoader();
 
     if (!result.hits || result.hits.length === 0) {
-      showErrorMessage(emptyResponseMessage)
+      showErrorMessage(messages.emptyResponseMessage)
       return;
     }
 
     createGallery(result.hits);
-    totalPages = Math.ceil(result.totalHits / 15);
+    totalPages = Math.ceil(result.totalHits / result.hits.length);
 
     if (page < totalPages) {
       showLoadMoreButton();
@@ -62,29 +69,28 @@ searchButton.addEventListener('click', async (event) => {
   }
 })
 
-loadMoreButton.addEventListener("click", async (event) => {
+refs.loadMoreButton.addEventListener('click', async (event) => {
   event.preventDefault();
   page += 1;
 
   showLoader();
+  hideLoadMoreButton();
+
   try {
-    const queryState = query.value;
     const result = await getImagesByQuery(queryState, page);
-
     hideLoader();
-
-    const gallery = document.querySelector('.gallery');
-    const lastElement = gallery.lastElementChild;
-
     createGallery(result.hits);
 
-    if (lastElement) {
-      lastElement.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+
+    const rect = refs.gallery.getBoundingClientRect();
+    window.scrollBy({
+      top: rect.height * 2,
+      behavior: 'smooth',
+    });
 
     if (page >= totalPages) {
       hideLoadMoreButton();
-      showErrorMessage(endSearchResults);
+      showErrorMessage(messages.endSearchResults);
       return;
     }
 
@@ -92,5 +98,6 @@ loadMoreButton.addEventListener("click", async (event) => {
     console.log(error);
     hideLoader();
   }
+  showLoadMoreButton();
 
 })
