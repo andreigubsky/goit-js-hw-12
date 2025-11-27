@@ -1,6 +1,6 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
-import { getImagesByQuery } from './js/pixabay-api';
+import { getImagesByQuery, perPage } from './js/pixabay-api';
 import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions';
 
 let page = 1;
@@ -11,6 +11,7 @@ const refs = {
   form: document.querySelector('.js-form'),
   loadMoreButton: document.querySelector('.js-load-more-btn'),
   gallery: document.querySelector('.js-gallery'),
+
 }
 
 const messages = {
@@ -41,7 +42,6 @@ refs.form.addEventListener('submit', async (event) => {
   clearGallery();
   hideLoadMoreButton();
   showLoader();
-  page = 1;
 
   try {
     queryState = refs.query.value;
@@ -54,15 +54,13 @@ refs.form.addEventListener('submit', async (event) => {
     }
 
     createGallery(result.hits);
-    totalPages = Math.ceil(result.totalHits / result.hits.length);
+    totalPages = Math.ceil(result.totalHits / perPage);
 
     if (page < totalPages) {
       showLoadMoreButton();
     } else {
       hideLoadMoreButton();
     }
-
-
   } catch (error) {
     console.log(error);
     hideLoader();
@@ -73,31 +71,28 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
   event.preventDefault();
   page += 1;
 
-  showLoader();
-  hideLoadMoreButton();
-
   try {
     const result = await getImagesByQuery(queryState, page);
-    hideLoader();
-    createGallery(result.hits);
-
-
-    const rect = refs.gallery.getBoundingClientRect();
-    window.scrollBy({
-      top: rect.height * 2,
-      behavior: 'smooth',
-    });
-
     if (page >= totalPages) {
       hideLoadMoreButton();
       showErrorMessage(messages.endSearchResults);
       return;
     }
+    showLoader();
+    createGallery(result.hits);
+    hideLoader();
+    showLoadMoreButton();
+
+    const rect = refs.gallery.lastElementChild.getBoundingClientRect();
+    console.log(rect)
+    window.scrollBy({
+      top: rect.height * 3,
+      behavior: 'smooth',
+    });
 
   } catch (error) {
     console.log(error);
-    hideLoader();
   }
-  showLoadMoreButton();
+
 
 })

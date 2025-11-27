@@ -21,7 +21,7 @@ const options = {
     'Content-Type': 'application/json',
   },
 };
-
+export { perPage };
 export async function getImagesByQuery(query, page) {
   try {
     const requestURL = `${url}/?key=${KEY}&q=${query}&image_type=${imageType}&orientation=${orientation}&safesearch=${safeSearch}&page=${page}&per_page=${perPage}`;
@@ -36,16 +36,7 @@ export async function getImagesByQuery(query, page) {
     console.error(error);
     throw error;
   }
-
-}
-
-
-
-
-
-
-
-
+};
 
 
 
