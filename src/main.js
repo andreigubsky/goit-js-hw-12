@@ -32,9 +32,16 @@ function showErrorMessage(shownMessage) {
   });
 }
 
+function checkResults(hits) {
+  if (!hits || hits.length === 0) {
+    showErrorMessage(messages.emptyResponseMessage)
+    return;
+  }
+}
+
 refs.form.addEventListener('submit', async (event) => {
   event.preventDefault();
-
+  page = 1;
   if (refs.query.value.trim() === '') {
     showErrorMessage(messages.emptyQueryMessage);
     return;
@@ -47,12 +54,7 @@ refs.form.addEventListener('submit', async (event) => {
     queryState = refs.query.value;
     const result = await getImagesByQuery(queryState, page);
     hideLoader();
-
-    if (!result.hits || result.hits.length === 0) {
-      showErrorMessage(messages.emptyResponseMessage)
-      return;
-    }
-
+    checkResults(result.hits);
     createGallery(result.hits);
     totalPages = Math.ceil(result.totalHits / perPage);
 
@@ -72,21 +74,30 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
   page += 1;
 
   try {
+
     const result = await getImagesByQuery(queryState, page);
+    showLoader();
+    checkResults(result.hits);
+    console.log(result.hits)
+
+    if (!result.hits) {
+      showErrorMessage(messages.endSearchResults);
+      return;
+    }
     if (page >= totalPages) {
       hideLoadMoreButton();
       showErrorMessage(messages.endSearchResults);
       return;
     }
-    showLoader();
+
     createGallery(result.hits);
     hideLoader();
     showLoadMoreButton();
 
-    const rect = refs.gallery.lastElementChild.getBoundingClientRect();
+    const rect = refs.gallery.querySelector('li').getBoundingClientRect();
     console.log(rect)
     window.scrollBy({
-      top: rect.height * 3,
+      top: rect.height * 2,
       behavior: 'smooth',
     });
 
