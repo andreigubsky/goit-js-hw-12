@@ -11,6 +11,7 @@ const refs = {
   form: document.querySelector('.js-form'),
   loadMoreButton: document.querySelector('.js-load-more-btn'),
   gallery: document.querySelector('.js-gallery'),
+  toast: document.querySelectorAll('.iziToast'),
 
 }
 
@@ -29,37 +30,78 @@ function showErrorMessage(shownMessage) {
     backgroundColor: '#fe5549',
     progressBar: false,
     position: 'center',
+    timeout: 10000,
   });
 }
 
-function checkResults(hits) {
-  if (!hits || hits.length === 0) {
-    showErrorMessage(messages.emptyResponseMessage)
-    return;
-  }
+function hideErrorMessage(toast) {
+  iziToast.destroy({}, toast);
 }
 
 refs.form.addEventListener('submit', async (event) => {
   event.preventDefault();
   page = 1;
+
+  if (refs.toast) {
+    hideErrorMessage(refs.toast)
+  }
+
+  showLoader();
+  await new Promise(requestAnimationFrame);
+
   if (refs.query.value.trim() === '') {
+
+    if (refs.toast) {
+      hideErrorMessage(refs.toast)
+    }
+    hideLoader();
+    await new Promise(requestAnimationFrame);
     showErrorMessage(messages.emptyQueryMessage);
     return;
   }
-  clearGallery();
+
   hideLoadMoreButton();
-  showLoader();
+  clearGallery();
 
   try {
     queryState = refs.query.value;
     const result = await getImagesByQuery(queryState, page);
-    hideLoader();
-    checkResults(result.hits);
-    createGallery(result.hits);
     totalPages = Math.ceil(result.totalHits / perPage);
+
+    if (!result.hits || result.hits.length === 0) {
+      if (refs.toast) {
+        hideErrorMessage(refs.toast)
+      }
+      hideLoader();
+      await new Promise(requestAnimationFrame);
+      showErrorMessage(messages.emptyResponseMessage)
+      return;
+    }
+
+    if (!result.hits) {
+      const toast = document.querySelectorAll('.iziToast');
+      if (toast) {
+        hideErrorMessage(toast)
+      }
+      hideLoader();
+      await new Promise(requestAnimationFrame);
+      showErrorMessage(messages.endSearchResults);
+      return;
+    }
+
+    if (page >= totalPages) {
+      createGallery(result.hits);
+      hideLoader();
+      showErrorMessage(messages.endSearchResults);
+      return;
+    }
+
+    createGallery(result.hits);
+    hideLoader();
 
     if (page < totalPages) {
       showLoadMoreButton();
+
     } else {
       hideLoadMoreButton();
     }
@@ -74,18 +116,36 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
   page += 1;
 
   try {
-
-    const result = await getImagesByQuery(queryState, page);
+    hideLoadMoreButton();
     showLoader();
-    checkResults(result.hits);
-    console.log(result.hits)
+    await new Promise(requestAnimationFrame);
+    const result = await getImagesByQuery(queryState, page);
+
+    if (!result.hits || result.hits.length === 0) {
+      if (refs.toast) {
+        hideErrorMessage(refs.toast)
+      }
+      hideLoader();
+      await new Promise(requestAnimationFrame);
+      showErrorMessage(messages.emptyResponseMessage)
+      return;
+    }
 
     if (!result.hits) {
+      if (refs.toast) {
+        hideErrorMessage(refs.toast)
+      }
+      hideLoader();
+      await new Promise(requestAnimationFrame);
       showErrorMessage(messages.endSearchResults);
       return;
     }
+
     if (page >= totalPages) {
-      hideLoadMoreButton();
+
+      await new Promise(requestAnimationFrame);
+      createGallery(result.hits);
+      hideLoader();
       showErrorMessage(messages.endSearchResults);
       return;
     }
@@ -94,12 +154,22 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
     hideLoader();
     showLoadMoreButton();
 
-    const rect = refs.gallery.querySelector('li').getBoundingClientRect();
-    console.log(rect)
-    window.scrollBy({
-      top: rect.height * 2,
-      behavior: 'smooth',
-    });
+    await new Promise(requestAnimationFrame);
+
+    const items = [...refs.gallery.querySelectorAll('li.js-gallery-item')];
+    console.log(items)
+
+    const firstNewItem = items[items.length - result.hits.length];
+    console.log(firstNewItem)
+
+    if (firstNewItem) {
+      const rect = firstNewItem.getBoundingClientRect();
+      console.log(rect)
+      window.scrollBy({
+        top: rect.height * 2,
+        behavior: 'smooth',
+      });
+    }
 
   } catch (error) {
     console.log(error);

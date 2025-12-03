@@ -11,7 +11,7 @@ const KEY = '52704159-1137319808f91d343a45c96fe';
 const imageType = 'photo';
 const orientation = 'horizontal';
 const safeSearch = true;
-const perPage = 15;
+const perPage = 9;
 
 
 const options = {

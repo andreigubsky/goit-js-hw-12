@@ -15,7 +15,6 @@
 
 .load-more-btn {
     display: none;
-    /* display: flex; */
     justify-content: center;
     align-items: center;
     margin: 0 auto 24px;
