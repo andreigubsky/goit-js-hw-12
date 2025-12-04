@@ -1,19 +1,21 @@
 .loader {
     width: 48px;
     height: 48px;
-    position: absolute; 
+    position: fixed; 
     left: 50%; 
     top: 50%; 
+    transform: translate(-50%, -50%);
     border: 5px solid lightgray;
     border-bottom-color: transparent;
     border-radius: 50%;
     box-sizing: border-box;
     animation: rotation 2s linear infinite;
     display: none;
+    z-index: 9999;
 }
 
 .loader.is-shown {
-    display: inline-block;
+    display: block;
 }
 
 @keyframes rotation {

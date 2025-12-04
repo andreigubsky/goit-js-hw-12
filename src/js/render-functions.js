@@ -5,7 +5,7 @@ import '/css/animations.css';
 const gallery = document.querySelector('ul.gallery');
 const loader = document.querySelector('.loader');
 const loadMoreButton = document.querySelector('.load-more-btn');
-const newGallery = new SimpleLightbox('.gallery li a', {
+export const newGallery = new SimpleLightbox('.gallery li a', {
   captions: true,
   captionSelector: 'img',
   captionType: 'attr',
@@ -31,7 +31,7 @@ export function createGallery(images) {
     })
     .join('');
   gallery.insertAdjacentHTML('beforeend', markup);
-  newGallery.refresh();
+  // newGallery.refresh();
 }
 
 export function clearGallery() {
@@ -39,13 +39,13 @@ export function clearGallery() {
 }
 
 export function showLoader() {
-  gallery.classList.remove('is-shown');
+  // gallery.classList.remove('is-shown');
   loader.classList.add('is-shown');
 }
 
 export function hideLoader() {
   loader.classList.remove('is-shown');
-  gallery.classList.add('is-shown');
+  // gallery.classList.add('is-shown');
 }
 
 export function showLoadMoreButton() {

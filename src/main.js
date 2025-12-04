@@ -1,7 +1,7 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import { getImagesByQuery, perPage } from './js/pixabay-api';
-import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions';
+import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton, newGallery } from './js/render-functions';
 
 let page = 1;
 let totalPages = 0;
@@ -35,7 +35,7 @@ function showErrorMessage(shownMessage) {
 }
 
 function hideErrorMessage(toast) {
-  iziToast.destroy({}, toast);
+  iziToast.destroy();
 }
 
 refs.form.addEventListener('submit', async (event) => {
@@ -64,7 +64,7 @@ refs.form.addEventListener('submit', async (event) => {
   clearGallery();
 
   try {
-    queryState = refs.query.value;
+    queryState = refs.query.value.trim();
     const result = await getImagesByQuery(queryState, page);
     totalPages = Math.ceil(result.totalHits / perPage);
 
@@ -116,6 +116,7 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
   page += 1;
 
   try {
+    const previousItemsCount = refs.gallery.children.length;
     hideLoadMoreButton();
     showLoader();
     await new Promise(requestAnimationFrame);
@@ -152,16 +153,21 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
 
     createGallery(result.hits);
     hideLoader();
-    showLoadMoreButton();
+    if (page < totalPages) {
+      showLoadMoreButton();
+
+    } else {
+      hideLoadMoreButton();
+    }
+
+
+    newGallery.refresh();
 
     await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
+    await new Promise(requestAnimationFrame);
 
-    const items = [...refs.gallery.querySelectorAll('li.js-gallery-item')];
-    console.log(items)
-
-    const firstNewItem = items[items.length - result.hits.length];
-    console.log(firstNewItem)
-
+    const firstNewItem = refs.gallery.children[previousItemsCount];
     if (firstNewItem) {
       const rect = firstNewItem.getBoundingClientRect();
       console.log(rect)
@@ -171,9 +177,12 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
       });
     }
 
+
+
   } catch (error) {
     console.log(error);
   }
+
 
 
 })
