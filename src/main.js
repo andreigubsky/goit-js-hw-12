@@ -1,7 +1,7 @@
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 import { getImagesByQuery, perPage } from './js/pixabay-api';
-import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton, newGallery } from './js/render-functions';
+import { createGallery, clearGallery, showLoader, hideLoader, showLoadMoreButton, hideLoadMoreButton } from './js/render-functions';
 
 let page = 1;
 let totalPages = 0;
@@ -41,6 +41,7 @@ function hideErrorMessage(toast) {
 refs.form.addEventListener('submit', async (event) => {
   event.preventDefault();
   page = 1;
+  queryState = '';
 
   if (refs.toast) {
     hideErrorMessage(refs.toast)
@@ -159,13 +160,6 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
     } else {
       hideLoadMoreButton();
     }
-
-
-    newGallery.refresh();
-
-    await new Promise(requestAnimationFrame);
-    await new Promise(requestAnimationFrame);
-    await new Promise(requestAnimationFrame);
 
     const firstNewItem = refs.gallery.children[previousItemsCount];
     if (firstNewItem) {
