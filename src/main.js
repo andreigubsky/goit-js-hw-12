@@ -11,8 +11,6 @@ const refs = {
   form: document.querySelector('.js-form'),
   loadMoreButton: document.querySelector('.js-load-more-btn'),
   gallery: document.querySelector('.js-gallery'),
-  toast: document.querySelectorAll('.iziToast'),
-
 }
 
 const messages = {
@@ -34,35 +32,24 @@ function showErrorMessage(shownMessage) {
   });
 }
 
-function hideErrorMessage(toast) {
-  iziToast.destroy();
-}
+
 
 refs.form.addEventListener('submit', async (event) => {
   event.preventDefault();
   page = 1;
   queryState = '';
 
-  if (refs.toast) {
-    hideErrorMessage(refs.toast)
-  }
 
+  hideLoadMoreButton();
+  clearGallery();
   showLoader();
   await new Promise(requestAnimationFrame);
 
   if (refs.query.value.trim() === '') {
-
-    if (refs.toast) {
-      hideErrorMessage(refs.toast)
-    }
     hideLoader();
-    await new Promise(requestAnimationFrame);
     showErrorMessage(messages.emptyQueryMessage);
     return;
   }
-
-  hideLoadMoreButton();
-  clearGallery();
 
   try {
     queryState = refs.query.value.trim();
@@ -70,23 +57,9 @@ refs.form.addEventListener('submit', async (event) => {
     totalPages = Math.ceil(result.totalHits / perPage);
 
     if (!result.hits || result.hits.length === 0) {
-      if (refs.toast) {
-        hideErrorMessage(refs.toast)
-      }
-      hideLoader();
-      await new Promise(requestAnimationFrame);
-      showErrorMessage(messages.emptyResponseMessage)
-      return;
-    }
 
-    if (!result.hits) {
-      const toast = document.querySelectorAll('.iziToast');
-      if (toast) {
-        hideErrorMessage(toast)
-      }
       hideLoader();
-      await new Promise(requestAnimationFrame);
-      showErrorMessage(messages.endSearchResults);
+      showErrorMessage(messages.emptyResponseMessage)
       return;
     }
 
@@ -108,6 +81,7 @@ refs.form.addEventListener('submit', async (event) => {
     }
   } catch (error) {
     console.log(error);
+  } finally {
     hideLoader();
   }
 })
@@ -123,28 +97,7 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
     await new Promise(requestAnimationFrame);
     const result = await getImagesByQuery(queryState, page);
 
-    if (!result.hits || result.hits.length === 0) {
-      if (refs.toast) {
-        hideErrorMessage(refs.toast)
-      }
-      hideLoader();
-      await new Promise(requestAnimationFrame);
-      showErrorMessage(messages.emptyResponseMessage)
-      return;
-    }
-
-    if (!result.hits) {
-      if (refs.toast) {
-        hideErrorMessage(refs.toast)
-      }
-      hideLoader();
-      await new Promise(requestAnimationFrame);
-      showErrorMessage(messages.endSearchResults);
-      return;
-    }
-
     if (page >= totalPages) {
-
       await new Promise(requestAnimationFrame);
       createGallery(result.hits);
       hideLoader();
@@ -156,7 +109,6 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
     hideLoader();
     if (page < totalPages) {
       showLoadMoreButton();
-
     } else {
       hideLoadMoreButton();
     }
@@ -170,13 +122,9 @@ refs.loadMoreButton.addEventListener('click', async (event) => {
         behavior: 'smooth',
       });
     }
-
-
-
   } catch (error) {
     console.log(error);
+  } finally {
+    hideLoader();
   }
-
-
-
 })
